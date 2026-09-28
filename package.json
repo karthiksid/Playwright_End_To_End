@@ -1,0 +1,21 @@
+{
+  "name": "playwright_end_to_end",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karthiksid/Playwright_End_To_End.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/karthiksid/Playwright_End_To_End/issues"
+  },
+  "homepage": "https://github.com/karthiksid/Playwright_End_To_End#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2"
+  }
+}
