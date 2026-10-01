@@ -14,6 +14,13 @@ import { chromium, defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+
+  timeout: 30_000,
+
+  expect: {
+    timeout: 5000
+  },
+
   /* Run tests in files in parallel */
 
   fullyParallel: false,
@@ -32,19 +39,18 @@ export default defineConfig({
 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    trace: 'on-first-retry',
+    trace: 'on',
     launchOptions: {
       args: ['--start-maximized']
     },
 
-    viewport:null,
-    browserName:'chromium',
-    headless:false
+    viewport: null,
+    browserName: 'chromium',
+    headless: false,
+    screenshot: 'on',
+    actionTimeout: 10_000,
+    navigationTimeout: 30_000,
 
   },
-
-
-
-
 });
 

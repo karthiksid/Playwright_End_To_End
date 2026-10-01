@@ -13,7 +13,11 @@ const LocatorsUsed = {
 
 }
 
-test.only('End_To_End_Framework', async ({ page }) => {
+test('End_To_End_Framework', async ({ page }) => {
+
+    
+
+    
 
     /****************************************************************************** Locators space **********************************************************************************/
     const userName = await page.locator("#userEmail");
@@ -27,7 +31,6 @@ test.only('End_To_End_Framework', async ({ page }) => {
     const cartInLandingPage = await page.locator("//button[contains(text(),' Cart ')]");
 
     const checkoutButton = await page.locator("//div/ul/li/button[contains(text(),'Checkout')]");
-
     const cvvCode = await page.locator("//div[contains(text(),'CVV Code ')]/following::input[@type='text']").first();
     const NameOnCard = await page.locator("//div[contains(text(),'Name')]/following::input[@type='text']").first();
     const EnterCountryDetails = await page.getByPlaceholder('Select Country');
@@ -40,11 +43,19 @@ test.only('End_To_End_Framework', async ({ page }) => {
     const OrderIdInOrderHistoryPage = await page.locator("//tbody/tr/th");
     const YourOrdersPage = await page.locator("//h1");
     const OrdersLinkOnLandingPage = await page.locator("//li/button[contains(text(),' ORDERS')]");
-    const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button[contains(text(),'Delete')]");
-    const veiwOlderOrderLink = await page.locator("//tbody/tr/td/button[contains(text(),'View')]");
+    
+    //const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button[contains(text(),'Delete')]");
+    const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button").filter({hasText  :'Delete'})
+
+    
+    //const veiwOlderOrderLink = await page.locator("//tbody/tr/td/button[contains(text(),'View')]");
+    const veiwOlderOrderLink = await page.locator("//tbody/tr/td/button").filter({ hasText: 'View' })
+
     const homeButtonInOrderHistoryPage = await page.locator("//li/button[contains(text(),' HOME')]");
 
     const orderIDFromViewOrderPage = await page.locator("//div/small[contains(text(),'Order Id')]/following::div[1]");
+
+    const signOutButton = await page.getByRole("button",{name :" Sign Out "});
 
     /****************************************************************************** Locators space **********************************************************************************/
 
@@ -65,11 +76,15 @@ test.only('End_To_End_Framework', async ({ page }) => {
     await page.waitForURL('https://rahulshettyacademy.com/client/#/dashboard/myorders');
     
    
+    
 const checkForOrders = await YourOrdersPage
     .waitFor({ state: 'visible', timeout: 3000 })
     .then(() => true)
     .catch(() => false);
-   
+ 
+
+//const checkForOrders = expect(YourOrdersPage).toBeVisible();
+
 
     if(checkForOrders){
         console.log("checking the previous order if present or not")
@@ -272,5 +287,8 @@ const checkForOrders = await YourOrdersPage
     } else {
         console.log("No previous orders are present, hence moving forward with order creation")
     }
+           await signOutButton.click();
+
+  
 
 })
