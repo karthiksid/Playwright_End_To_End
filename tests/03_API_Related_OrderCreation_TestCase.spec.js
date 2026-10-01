@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test'
-
+import { test, expect, request } from '@playwright/test'
+const {API_Utils} = require('./utils/API_Utils')
 
 const LocatorsUsed = {
 
@@ -12,10 +12,34 @@ const LocatorsUsed = {
 
 
 }
+const loginPayload = {userEmail: "karthiksiddanilearnautomation@gmail.com", userPassword: "TestPassword1"}
 
-test('End_To_End_Framework', async ({ page }) => {
+//const orderPayload = {orders:[{country:"Cuba",productOrderedId:"6960eae1c941646b7a8b3ed3"}]}
 
-    /****************************************************************************** Locators space **********************************************************************************/
+const orderPayload = {orders:[
+    { country: "India", productOrderedId: "6960ea76c941646b7a8b3dd5" },
+    { country: "India", productOrderedId: "6960eae1c941646b7a8b3ed3" },
+    { country: "India", productOrderedId: "6960eac0c941646b7a8b3e68" }
+]};
+
+let response;
+
+test.beforeAll('test before all',async ()=>{
+
+    console.log("coming from before all")
+
+    const apiContext = await request.newContext();
+
+    const APIUtils =new API_Utils (apiContext,loginPayload);
+       response =await  APIUtils.createOrder(orderPayload);
+  
+        
+});
+
+test('End_To_End_Framework using the API for Order creation', async ({ page }) => {
+
+
+    //****************************************************************************** Locators space **********************************************************************************//
     const userName = await page.locator("#userEmail");
     const userPassword = await page.locator('#userPassword');
     const submitBtn = await page.locator('#login');
@@ -48,74 +72,26 @@ test('End_To_End_Framework', async ({ page }) => {
     /****************************************************************************** Locators space **********************************************************************************/
 
 
-      await page.goto('https://rahulshettyacademy.com/client/#/auth/login');
+
+/*
+    await page.goto('https://rahulshettyacademy.com/client/#/auth/login');
     await userName.fill('karthiksiddanilearnautomation@gmail.com');
     await userPassword.fill('TestPassword1');
-    await submitBtn.click();
+    await submitBtn.click();*/
+
+
+
+        
+    await page.addInitScript(value=>{
+        window.localStorage.setItem('token',value);
+    },response.token);
+
+    await page.goto('https://rahulshettyacademy.com/client');
 
     await OrdersLinkOnLandingPage.waitFor();
-    
-    await page.waitForLoadState('networkidle');
-
-    await shoppinngItemsList.last().waitFor();
-
-
-    const countOfItems = await shoppinngItemsList.count();
-    const ItemsList = [];
-
-    console.log('items available are : ')
-    for (let i = 0; i < countOfItems; i++) {
-        if (await shoppinngItemsList.nth(i).isVisible()) {
-
-            const itemName = (await shoppinngItemsList.nth(i).textContent()).trim();
-            ItemsList.push(itemName)
-            console.log(itemName);
-        }
-    }
-
-
-    //Verify the each landing page of the item
-
-
-    for (let i = 0; i < ItemsList.length; i++) {
-        await viewButtonShoppingList.nth(i).click();
-        console.log('click on the view for item ' + (i + 1))
-        await page.waitForSelector(LocatorsUsed.waitForItemNameDisplay);
-        const ItemNameDisplayed = (await itemNameInViewLandingPage.textContent()).trim();
-        expect(ItemsList).toContain(ItemNameDisplayed)
-        console.log('verified the ' + ItemNameDisplayed)
-        await addToCartInLandingPage.click()
-        console.log('item added to cart is ' + ItemNameDisplayed)
-        await page.goBack();
-    }
-
-    //Verifying the cart after adding the items
-
-    await page.waitForSelector(LocatorsUsed.waitForCartLoading, { delay: 1000 });
-    const countInCart = Number(await cartCountAfterAdding.textContent());
-    console.log('items count present in cart after adding items is ' + countInCart)
-    expect(countInCart).toEqual(countOfItems);
-
-    await cartInLandingPage.click();
-    console.log('cart is clicked')
-
-    await checkoutButton.click();
-    console.log('checkoutButton is clicked')
-
-    await page.waitForSelector(LocatorsUsed.waitForPayment)
-    await cvvCode.pressSequentially('123', { delay: 100 })
-    console.log('typed in the CVV code');
-    await NameOnCard.pressSequentially('karthik', { delay: 100 })
-    console.log('typed in the name')
-    await EnterCountryDetails.pressSequentially('India', { delay: 100 })
-    await selectIndia.click();
-    console.log('selected the country')
-    await placeOrder.click();
-    console.log('clicked on place order')
-    await page.waitForSelector(LocatorsUsed.waitForOrder);
-
-
-    //Get the count of orders available on the orders page
+    await OrdersLinkOnLandingPage.click();
+  
+  //Get the count of orders available on the orders page
     const countOfOrderPlaced = await orderIDsPlaced.count();
     const orderList = [];
 
@@ -131,7 +107,7 @@ test('End_To_End_Framework', async ({ page }) => {
 
 
     //goto order history page
-    await orderHistoryLink.click();
+    //await orderHistoryLink.click();
     console.log('clicked on the order history page');
 
 
@@ -152,6 +128,7 @@ test('End_To_End_Framework', async ({ page }) => {
         console.log(EachOrderIdNumberGrabbedFromList);        
     }
 
-
     await signOutButton.click();
+    
+
 })

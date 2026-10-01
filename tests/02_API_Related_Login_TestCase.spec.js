@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, request } from '@playwright/test'
+const {API_Utils}=require('./utils/API_Utils');
 
 
 const LocatorsUsed = {
@@ -12,13 +13,23 @@ const LocatorsUsed = {
 
 
 }
+const loginPayload = {userEmail: "karthiksiddanilearnautomation@gmail.com", userPassword: "TestPassword1"}
 
-test('End_To_End_Framework', async ({ page }) => {
+let token;
 
-    /****************************************************************************** Locators space **********************************************************************************/
-    const userName = await page.locator("#userEmail");
-    const userPassword = await page.locator('#userPassword');
-    const submitBtn = await page.locator('#login');
+test.beforeAll('test before all',async ()=>{
+
+        const apiContext = await request.newContext();
+        const APIUtils =new API_Utils (apiContext,loginPayload);
+        token = await APIUtils.getTokenLogin();
+
+});
+
+
+test('End_To_End_Framework using the API login functionality', async ({ page }) => {
+
+
+    //****************************************************************************** Locators space **********************************************************************************//
     const shoppinngItemsList = await page.locator('h5>b');
     const viewButtonShoppingList = await page.locator("//h5/following::button[contains(text(),'View')]");
     const itemNameInViewLandingPage = await page.locator("//div/h2");
@@ -48,10 +59,20 @@ test('End_To_End_Framework', async ({ page }) => {
     /****************************************************************************** Locators space **********************************************************************************/
 
 
-      await page.goto('https://rahulshettyacademy.com/client/#/auth/login');
+
+/*
+    await page.goto('https://rahulshettyacademy.com/client/#/auth/login');
     await userName.fill('karthiksiddanilearnautomation@gmail.com');
     await userPassword.fill('TestPassword1');
-    await submitBtn.click();
+    await submitBtn.click();*/
+
+    
+    
+    await page.addInitScript(value=>{
+        window.localStorage.setItem('token',value);
+    },token);
+
+    await page.goto('https://rahulshettyacademy.com/client');
 
     await OrdersLinkOnLandingPage.waitFor();
     
@@ -152,6 +173,7 @@ test('End_To_End_Framework', async ({ page }) => {
         console.log(EachOrderIdNumberGrabbedFromList);        
     }
 
-
     await signOutButton.click();
+    
+
 })
