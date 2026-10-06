@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+
+    "test": "npx playwright test 01_Session_Storage_Insertion.spec.js --headed"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/karthiksid/Playwright_End_To_End.git"
