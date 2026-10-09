@@ -1,0 +1,42 @@
+checking the previous order if present or not
+No previous orders are present, hence moving forward with order creation
+items available are : 
+ADIDAS ORIGINAL
+ZARA COAT 3
+iphone 13 pro
+click on the view for item 1
+verified the ADIDAS ORIGINAL
+item added to cart is ADIDAS ORIGINAL
+click on the view for item 2
+verified the ZARA COAT 3
+item added to cart is ZARA COAT 3
+click on the view for item 3
+verified the iphone 13 pro
+item added to cart is iphone 13 pro
+items count present in cart after adding items is 3
+cart is clicked
+checkoutButton is clicked
+typed in the CVV code
+typed in the name
+selected the country
+clicked on place order
+order ID's available are : 
+6ac8f2cc2be7a4bc2b986529
+6ac8f2cc2be7a4bc2b98652c
+6ac8f2cc2be7a4bc2b986530
+clicked on the order history page
+order id count 3
+getting the orderID's from your orders page
+6ac8f2cc2be7a4bc2b986530
+6ac8f2cc2be7a4bc2b98652c
+6ac8f2cc2be7a4bc2b986529
+checking the order if present or not
+count of orders which are to be viewed are : 3
+verified the order 6ac8f2cc2be7a4bc2b986529
+verified the order 6ac8f2cc2be7a4bc2b98652c
+verified the order 6ac8f2cc2be7a4bc2b986529
+checking the order if present or not
+count of orders which needs to be deleted are : 3
+deleted the order id after verification :6ac8f2cc2be7a4bc2b986529
+deleted the order id after verification :6ac8f2cc2be7a4bc2b98652c
+deleted the order id after verification :6ac8f2cc2be7a4bc2b986530

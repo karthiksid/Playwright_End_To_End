@@ -1,5 +1,5 @@
 import { test, expect, request } from '@playwright/test'
-const {API_Utils} = require('./utils/API_Utils')
+const {API_Utils} = require('../utils/API_Utils')
 
 const LocatorsUsed = {
 
@@ -22,8 +22,6 @@ const orderPayload = {orders:[
     { country: "India", productOrderedId: "6960eac0c941646b7a8b3e68" }
 ]};
 
-const fakePayLoadOrders = {data:[],message:"No Orders"};
-
 let response;
 
 test.beforeAll('test before all',async ()=>{
@@ -34,8 +32,8 @@ test.beforeAll('test before all',async ()=>{
 
     const APIUtils =new API_Utils (apiContext,loginPayload);
        response =await  APIUtils.createOrder(orderPayload);
-
-             
+  
+        
 });
 
 test('End_To_End_Framework using the API for Order creation', async ({ page }) => {
@@ -88,33 +86,10 @@ test('End_To_End_Framework using the API for Order creation', async ({ page }) =
         window.localStorage.setItem('token',value);
     },response.token);
 
-    
-   await page.on('response',response=>console.log(response.url(), response.status()));
-  
-
     await page.goto('https://rahulshettyacademy.com/client');
-
-    
-  await page.route(("https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*"),
-        async route=>{
-                const response = await page.request.fetch(route.request())
-                let body = JSON.stringify(fakePayLoadOrders);
-                route.fulfill({
-                    response,
-                    body,
-                })
-            //intercepting the response --> API Response --> {fake response}--> browser action           
-
-        }
-)
-
-
-
 
     await OrdersLinkOnLandingPage.waitFor();
     await OrdersLinkOnLandingPage.click();
-
-    await page.waitForResponse("https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*");
   
   //Get the count of orders available on the orders page
     const countOfOrderPlaced = await orderIDsPlaced.count();
@@ -137,32 +112,7 @@ test('End_To_End_Framework using the API for Order creation', async ({ page }) =
 
 
     await page.waitForLoadState('networkidle');
-
-  
-    
-    const NoOrdersPresent = await page.locator("//div[contains(text(),'No Orders')]");
-
-
-    const orderVisible = await NoOrdersPresent
-    .waitFor({ state: 'visible', timeout: 2000 })
-    .then(() => true)
-    .catch(() => false);
-
-
-    
-    if(orderVisible){
-
-
-        const ZeroOrderTextGrab = await NoOrdersPresent.textContent()
-
-        expect(ZeroOrderTextGrab).toContain("You have No Orders to show at this time.")
-
-        console.log("Intercepted successfully and unable to see the orders")
-
-    }else{
-
-         await page.waitForSelector(LocatorsUsed.waitForOrderList)
-    
+    await page.waitForSelector(LocatorsUsed.waitForOrderList)
 
     const OrderIDCount = await OrderIdInOrderHistoryPage.count()
 
@@ -178,10 +128,6 @@ test('End_To_End_Framework using the API for Order creation', async ({ page }) =
         console.log(EachOrderIdNumberGrabbedFromList);        
     }
 
-    }
-
-
-   
     await signOutButton.click();
     
 

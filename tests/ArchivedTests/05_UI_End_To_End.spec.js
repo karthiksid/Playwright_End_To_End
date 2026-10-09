@@ -1,5 +1,4 @@
-import { test, expect, request } from '@playwright/test'
-const {API_Utils}=require('./utils/API_Utils');
+import { test, expect } from '@playwright/test'
 
 
 const LocatorsUsed = {
@@ -13,23 +12,17 @@ const LocatorsUsed = {
 
 
 }
-const loginPayload = {userEmail: "karthiksiddanilearnautomation@gmail.com", userPassword: "TestPassword1"}
 
-let token;
+test('End_To_End_Framework', async ({ page }) => {
 
-test.beforeAll('test before all',async ()=>{
+    
 
-        const apiContext = await request.newContext();
-        const APIUtils =new API_Utils (apiContext,loginPayload);
-        token = await APIUtils.getTokenLogin();
+    
 
-});
-
-
-test('End_To_End_Framework using the API login functionality', async ({ page }) => {
-
-
-    //****************************************************************************** Locators space **********************************************************************************//
+    /****************************************************************************** Locators space **********************************************************************************/
+    const userName = await page.locator("#userEmail");
+    const userPassword = await page.locator('#userPassword');
+    const submitBtn = await page.locator('#login');
     const shoppinngItemsList = await page.locator('h5>b');
     const viewButtonShoppingList = await page.locator("//h5/following::button[contains(text(),'View')]");
     const itemNameInViewLandingPage = await page.locator("//div/h2");
@@ -38,7 +31,6 @@ test('End_To_End_Framework using the API login functionality', async ({ page }) 
     const cartInLandingPage = await page.locator("//button[contains(text(),' Cart ')]");
 
     const checkoutButton = await page.locator("//div/ul/li/button[contains(text(),'Checkout')]");
-
     const cvvCode = await page.locator("//div[contains(text(),'CVV Code ')]/following::input[@type='text']").first();
     const NameOnCard = await page.locator("//div[contains(text(),'Name')]/following::input[@type='text']").first();
     const EnterCountryDetails = await page.getByPlaceholder('Select Country');
@@ -51,8 +43,17 @@ test('End_To_End_Framework using the API login functionality', async ({ page }) 
     const OrderIdInOrderHistoryPage = await page.locator("//tbody/tr/th");
     const YourOrdersPage = await page.locator("//h1");
     const OrdersLinkOnLandingPage = await page.locator("//li/button[contains(text(),' ORDERS')]");
-    const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button[contains(text(),'Delete')]");
+    
+    //const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button[contains(text(),'Delete')]");
+    const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button").filter({hasText  :'Delete'})
+
+    
+    //const veiwOlderOrderLink = await page.locator("//tbody/tr/td/button[contains(text(),'View')]");
+    const veiwOlderOrderLink = await page.locator("//tbody/tr/td/button").filter({ hasText: 'View' })
+
     const homeButtonInOrderHistoryPage = await page.locator("//li/button[contains(text(),' HOME')]");
+
+    const orderIDFromViewOrderPage = await page.locator("//div/small[contains(text(),'Order Id')]/following::div[1]");
 
     const signOutButton = await page.getByRole("button",{name :" Sign Out "});
 
@@ -60,22 +61,68 @@ test('End_To_End_Framework using the API login functionality', async ({ page }) 
 
 
 
-/*
+
     await page.goto('https://rahulshettyacademy.com/client/#/auth/login');
     await userName.fill('karthiksiddanilearnautomation@gmail.com');
     await userPassword.fill('TestPassword1');
-    await submitBtn.click();*/
+    await submitBtn.click();
 
-    
-    
-    await page.addInitScript(value=>{
-        window.localStorage.setItem('token',value);
-    },token);
-
-    await page.goto('https://rahulshettyacademy.com/client');
+    await page.waitForLoadState('networkidle');
 
     await OrdersLinkOnLandingPage.waitFor();
+
+    await OrdersLinkOnLandingPage.click();
+
+    await page.waitForURL('https://rahulshettyacademy.com/client/#/dashboard/myorders');
     
+   
+    
+const checkForOrders = await YourOrdersPage
+    .waitFor({ state: 'visible', timeout: 3000 })
+    .then(() => true)
+    .catch(() => false);
+ 
+
+//const checkForOrders = expect(YourOrdersPage).toBeVisible();
+
+
+    if(checkForOrders){
+        console.log("checking the previous order if present or not")
+    const countOfPreviousOrdersIntially = await page.locator("//tbody/tr/th").count();
+    console.log("count of orders are : " + countOfPreviousOrdersIntially)
+
+
+    if (countOfPreviousOrdersIntially > 0) {
+        for (let i = 0; i < countOfPreviousOrdersIntially; i++) {
+
+
+            const deleteButton = deleteOlderOrderLink.first();
+
+            await deleteButton.waitFor({ state: 'visible' });
+            await deleteButton.click();
+
+            // Wait for the success message to appear
+            const successMessage = page.getByText('Orders Deleted Successfully', { exact: true });
+
+            await expect(successMessage).toBeVisible();
+
+            await expect(successMessage).toBeHidden();
+
+
+
+        }
+    } 
+    
+
+    }else {
+        console.log("No previous orders are present, hence moving forward with order creation")
+    }
+
+
+    await homeButtonInOrderHistoryPage.click();
+    
+    //Get the count of items available on the shopping page
+
     await page.waitForLoadState('networkidle');
 
     await shoppinngItemsList.last().waitFor();
@@ -112,7 +159,7 @@ test('End_To_End_Framework using the API login functionality', async ({ page }) 
 
     //Verifying the cart after adding the items
 
-    await page.waitForSelector(LocatorsUsed.waitForCartLoading, { delay: 1000 });
+    //await page.waitForSelector(LocatorsUsed.waitForCartLoading, { delay: 1000 });
     const countInCart = Number(await cartCountAfterAdding.textContent());
     console.log('items count present in cart after adding items is ' + countInCart)
     expect(countInCart).toEqual(countOfItems);
@@ -170,10 +217,78 @@ test('End_To_End_Framework using the API login functionality', async ({ page }) 
 
         const OrderIdNumberGrabbedFromList = await page.locator("//tbody/tr/th").nth(i);
         const EachOrderIdNumberGrabbedFromList = (await OrderIdNumberGrabbedFromList.textContent()).trim();
-        console.log(EachOrderIdNumberGrabbedFromList);        
+        console.log(EachOrderIdNumberGrabbedFromList);
+        expect(orderList).toContain(EachOrderIdNumberGrabbedFromList);
     }
 
-    await signOutButton.click();
-    
+
+
+
+    await OrdersLinkOnLandingPage.waitFor();
+
+    await OrdersLinkOnLandingPage.click();
+
+    await YourOrdersPage.waitFor();
+
+
+    //Veiw the order and compare the orderId's
+
+    //deleting the previous orders if any    
+    console.log("checking the order if present or not")
+    const countOfPreviousOrders = await page.locator("//tbody/tr/th").count();
+    console.log("count of orders which are to be viewed are : " + countOfPreviousOrders)
+
+    if (countOfPreviousOrders > 0) {
+        for (let i = 0; i < countOfPreviousOrders; i++) {
+
+
+            const viewButton = veiwOlderOrderLink.nth(i);
+
+            await viewButton.waitFor();
+            await viewButton.click();
+            
+            // Wait for the success message to appear
+
+            const orderGrabbedFromIndOrderViewPage =await orderIDFromViewOrderPage.textContent();
+            expect(orderList).toContain(orderGrabbedFromIndOrderViewPage);
+            console.log("verified the order "+orderGrabbedFromIndOrderViewPage);
+            await OrdersLinkOnLandingPage.click();
+                  
+                   
+
+        }
+    } else {
+        console.log("No previous orders are present, hence moving forward with order creation")
+    }
+
+
+    //deleting the previous orders if any    
+    console.log("checking the order if present or not")    
+    console.log("count of orders which needs to be deleted are : " + countOfPreviousOrders)
+
+    if (countOfPreviousOrders > 0) {
+        for (let i = 0; i < countOfPreviousOrders; i++) {
+
+
+            const deleteButton = deleteOlderOrderLink.first();
+
+            await deleteButton.waitFor({ state: 'visible' });
+            await deleteButton.click();
+
+            // Wait for the success message to appear
+            const successMessage = page.getByText('Orders Deleted Successfully', { exact: true });
+
+            await expect(successMessage).toBeVisible();
+
+            await expect(successMessage).toBeHidden();
+
+            console.log("deleted the order id after verification :"+orderList[i])
+        }
+    } else {
+        console.log("No previous orders are present, hence moving forward with order creation")
+    }
+           await signOutButton.click();
+
+  
 
 })

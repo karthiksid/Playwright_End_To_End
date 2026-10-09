@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test'
 
+const { LoginPage } = require('./PageObjects/LoginPage.js')
+const { LandingPage } = require('./PageObjects/LandingPage.js')
+
 
 const LocatorsUsed = {
 
@@ -13,17 +16,18 @@ const LocatorsUsed = {
 
 }
 
-test('End_To_End_Framework', async ({ page }) => {
+test.only('End_To_End_Framework with Page Object Model Representation', async ({ page }) => {
 
-    
+    const userLoginName = "karthiksiddanilearnautomation@gmail.com";
+    const userSecret = "TestPassword1";
 
-    
+    const loginPageObject = new LoginPage(page);
+    const landingPageObject = new LandingPage(page);
+
 
     /****************************************************************************** Locators space **********************************************************************************/
-    const userName = await page.locator("#userEmail");
-    const userPassword = await page.locator('#userPassword');
-    const submitBtn = await page.locator('#login');
-    const shoppinngItemsList = await page.locator('h5>b');
+
+    
     const viewButtonShoppingList = await page.locator("//h5/following::button[contains(text(),'View')]");
     const itemNameInViewLandingPage = await page.locator("//div/h2");
     const addToCartInLandingPage = await page.getByRole('button', { name: 'Add to Cart' })
@@ -43,39 +47,39 @@ test('End_To_End_Framework', async ({ page }) => {
     const OrderIdInOrderHistoryPage = await page.locator("//tbody/tr/th");
     const YourOrdersPage = await page.locator("//h1");
     const OrdersLinkOnLandingPage = await page.locator("//li/button[contains(text(),' ORDERS')]");
-    
-    //const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button[contains(text(),'Delete')]");
-    const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button").filter({hasText  :'Delete'})
 
-    
+    //const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button[contains(text(),'Delete')]");
+    const deleteOlderOrderLink = await page.locator("//tbody/tr[1]/td/button").filter({ hasText: 'Delete' })
+
+
     //const veiwOlderOrderLink = await page.locator("//tbody/tr/td/button[contains(text(),'View')]");
     const veiwOlderOrderLink = await page.locator("//tbody/tr/td/button").filter({ hasText: 'View' })
 
-    const homeButtonInOrderHistoryPage = await page.locator("//li/button[contains(text(),' HOME')]");
+
 
     const orderIDFromViewOrderPage = await page.locator("//div/small[contains(text(),'Order Id')]/following::div[1]");
 
-    const signOutButton = await page.getByRole("button",{name :" Sign Out "});
+    const signOutButton = await page.getByRole("button", { name: " Sign Out " });
 
     /****************************************************************************** Locators space **********************************************************************************/
 
 
 
 
-    await page.goto('https://rahulshettyacademy.com/client/#/auth/login');
-    await userName.fill('karthiksiddanilearnautomation@gmail.com');
-    await userPassword.fill('TestPassword1');
-    await submitBtn.click();
-
+    await loginPageObject.openLoginPage();
+    loginPageObject.performLoginOperation(userLoginName, userSecret);
     await page.waitForLoadState('networkidle');
-
     await OrdersLinkOnLandingPage.waitFor();
-
     await OrdersLinkOnLandingPage.click();
+    await landingPageObject.waitForUrlToLoad()
 
-    await page.waitForURL('https://rahulshettyacademy.com/client/#/dashboard/myorders');
-    
-   
+
+    const hasPastOrders = await landingPageObject.CheckForPastOrders();
+
+    //const checkForOrders = expect(YourOrdersPage).toBeVisible();
+
+    console.log("checking the previous order if present or not")
+
     
 const checkForOrders = await YourOrdersPage
     .waitFor({ state: 'visible', timeout: 3000 })
@@ -118,6 +122,9 @@ const checkForOrders = await YourOrdersPage
         console.log("No previous orders are present, hence moving forward with order creation")
     }
 
+
+    const homeButtonInOrderHistoryPage = await page.locator("//li/button[contains(text(),' HOME')]");
+    const shoppinngItemsList = await page.locator('h5>b');
 
     await homeButtonInOrderHistoryPage.click();
     
@@ -252,9 +259,7 @@ const checkForOrders = await YourOrdersPage
             const orderGrabbedFromIndOrderViewPage =await orderIDFromViewOrderPage.textContent();
             expect(orderList).toContain(orderGrabbedFromIndOrderViewPage);
             console.log("verified the order "+orderGrabbedFromIndOrderViewPage);
-            await OrdersLinkOnLandingPage.click();
-                  
-                   
+            await OrdersLinkOnLandingPage.click();                                    
 
         }
     } else {

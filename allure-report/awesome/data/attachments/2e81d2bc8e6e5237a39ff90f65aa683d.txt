@@ -1,0 +1,8 @@
+checking the previous order if present or not
+No previous orders are present, hence moving forward with order creation
+count of items are : 3
+items available are : 
+items count present in cart after adding items is 0
+ADIDAS ORIGINAL
+ZARA COAT 3
+iphone 13 pro

@@ -1,6 +1,6 @@
 const {test,expect, request} = require ('@playwright/test');
 
-const {customTest} = require('./utils/fixtures.js')
+const {customTest} = require('../utils/fixtures.js')
 
 const LocatorsUsed = {
 
